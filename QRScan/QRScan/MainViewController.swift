@@ -128,7 +128,9 @@ class MainViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
         captureSession?.addOutput(captureMetadataOutput)
         
         captureMetadataOutput.setMetadataObjectsDelegate(self, queue: dispatch_get_main_queue())
-        captureMetadataOutput.metadataObjectTypes = [AVMetadataObjectTypeQRCode]
+        captureMetadataOutput.metadataObjectTypes = [AVMetadataObjectTypeUPCECode, AVMetadataObjectTypeCode39Code, AVMetadataObjectTypeCode39Mod43Code,
+            AVMetadataObjectTypeEAN13Code, AVMetadataObjectTypeEAN8Code, AVMetadataObjectTypeCode93Code, AVMetadataObjectTypeCode128Code,
+            AVMetadataObjectTypePDF417Code, AVMetadataObjectTypeQRCode, AVMetadataObjectTypeAztecCode]
         captureSession?.startRunning()
         
         
@@ -179,6 +181,18 @@ class MainViewController: UIViewController, AVCaptureMetadataOutputObjectsDelega
             if metadataObj.stringValue != nil {
                 stringToAction(metadataObj.stringValue)
             }
+        } else if metadataObj.stringValue != nil {
+            qrCodeFrameView?.removeFromSuperview()
+            captureSession?.stopRunning()
+            let thisURL = NSURL(string: ("https://www.google.com/search?q=" + metadataObj.stringValue.lowercaseString))
+            if thisURL != nil {
+                if UIApplication.sharedApplication().canOpenURL(thisURL!) {
+                    UIApplication.sharedApplication().openURL(thisURL!)
+                    return
+                }
+            }
+            transText = metadataObj.stringValue
+            performSegueWithIdentifier("showText", sender: self)
         }
     }
     
